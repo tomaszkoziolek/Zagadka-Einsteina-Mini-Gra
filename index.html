@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="index.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Zagadka Einsteina</h1>
+      <h3>Kto hoduje <span style="font-weight: bold">rybki</span>?</h3>
+    </header>
+    <div id="game">
+        <div>
+      <section id="dragAndDrop" class="container">
+        <h3>Przeciągnij i upuść</h3>
+        <div class="dragAndDropContainer">
+          <div
+            v-for="item in dragAndDropItemsList"
+            :key="item"
+            class="dragBox"
+            draggable="true"
+            @dragstart="handleDragStart(item)"
+          >
+            {{item}}
+          </div>
+        </div>
+      </section>
+      <section id="table" class="container">
+        <table>
+          <tbody>
+            <tr v-for="(row, rowIndex) in tableData" :key="rowIndex">
+              <td
+                v-for="(cell, colIndex) in row"
+                :key="colIndex"
+                @dragover="handleDragOver"
+                @drop="handleDrop(rowIndex, colIndex)"
+              >
+                <span
+                  v-if="rowIndex === 0 && colIndex > 0"
+                  style="font-weight: bold"
+                  >{{ cell }}</span
+                >
+                <span
+                  v-else-if="colIndex === 0 && rowIndex > 0"
+                  style="font-weight: bold"
+                  >{{ cell }}</span
+                >
+                <div v-else-if="rowIndex !== 0 && colIndex !== 0" 
+                class="box"
+                :class="{highlightBox: highlightedBoxes[rowIndex][colIndex]}"
+                @click="focusBox(rowIndex, colIndex)"
+                >
+                  {{cell}}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section id="buttons" class="container" id="controls">
+        <button @click="erease">Wyczyść wybraną komórkę</button>
+        <button @click="solvePopUp">Wskaż rozwiązanie</button>
+      </section>
+    </div>
+    <div>
+      <section id="clues" class="container" v-if="!readyToAnswer">
+        <h3>Wskazówki</h3>
+        <ul>
+          <li v-for="(hint, index) in hintsList" 
+          :key="index" 
+          :class="{highlight: highlightedHints[index]}"
+          @click="toggleHint(index)"
+          >{{hint}}</li>
+        </ul>
+      </section>
+      <section id="answer" class="container" v-else>
+        <h2>W którym domu hoduje się rybki?</h2>
+        <button :disabled="buttonsDisabled" @click="checkSolution(1)">Dom nr. 1</button>
+        <button :disabled="buttonsDisabled" @click="checkSolution(2)">Dom nr. 2</button>
+        <button :disabled="buttonsDisabled" @click="checkSolution(3)">Dom nr. 3</button>
+        <button :disabled="buttonsDisabled" @click="checkSolution(4)">Dom nr. 4</button>
+        <button :disabled="buttonsDisabled" @click="checkSolution(5)">Dom nr. 5</button>
+        <div v-if="answerGiven">
+            <h2>{{correctSolution ? 'Gratulacje! Dom nr. 4 to oprawna odpowiedź.' : 'Niestet, odpowiedź nie jest poprawna.'}}</h2>
+        </div>
+      </section>
+    </div>
+    </div>
+  </body>
+</html>
